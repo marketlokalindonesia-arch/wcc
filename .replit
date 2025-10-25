@@ -22,25 +22,17 @@ args = "Server"
 name = "Server"
 author = "agent"
 
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "php -S 0.0.0.0:5000 -t ."
-waitForPort = 5000
-
 [workflows.workflow.metadata]
 outputType = "webview"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "php -d display_errors=1 -d error_reporting=E_ALL -d log_errors=1 -d error_log=/dev/stderr -S 0.0.0.0:5000 -t ."
+waitForPort = 5000
 
 [[ports]]
 localPort = 5000
 externalPort = 80
-
-[[ports]]
-localPort = 36667
-externalPort = 3000
-
-[[ports]]
-localPort = 37653
-externalPort = 3002
 
 [[ports]]
 localPort = 41373

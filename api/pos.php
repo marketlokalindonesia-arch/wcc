@@ -5,12 +5,21 @@ require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../config/session.php';
 require_once __DIR__ . '/../controllers/POSController.php';
 
+// Debug logging
+error_log("POS API called - Session ID: " . session_id());
+error_log("Logged in: " . (isLoggedIn() ? "YES" : "NO"));
+if (isset($_SESSION['user_id'])) {
+    error_log("User ID: " . $_SESSION['user_id'] . ", Role: " . ($_SESSION['user_role'] ?? 'none'));
+}
+
 if (!isLoggedIn()) {
+    error_log("POS API: Not logged in - returning unauthorized");
     echo json_encode(['success' => false, 'message' => 'Unauthorized']);
     exit;
 }
 
 if (!in_array($_SESSION['user_role'], ['admin', 'cashier'])) {
+    error_log("POS API: Invalid role - returning access denied");
     echo json_encode(['success' => false, 'message' => 'Access denied']);
     exit;
 }
