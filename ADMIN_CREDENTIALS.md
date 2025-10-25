@@ -10,6 +10,7 @@
 ## Default Cashier Account
 
 - **Username**: `cashier`
+- **Password**: `password`
 - **Email**: `cashier@example.com`
 - **Role**: `cashier`
 
