@@ -54,11 +54,49 @@ $routes = [
     
     // Admin routes
     'admin/dashboard' => 'views/admin/dashboard.php',
-    'admin/products' => 'views/admin/products.php',
+    
+    // POS routes
     'admin/pos' => 'views/admin/pos.php',
+    'admin/pos/roles' => 'views/admin/pos/roles.php',
+    'admin/pos/outlet' => 'views/admin/pos/outlet.php',
+    'admin/pos/stock-settings' => 'views/admin/pos/stock-settings.php',
+    'admin/pos/payment' => 'views/admin/pos/payment.php',
+    
+    // Products routes
+    'admin/products' => 'views/admin/products.php',
+    'admin/products/add' => 'views/admin/products/add.php',
+    'admin/products/categories' => 'views/admin/products/categories.php',
+    'admin/products/brands' => 'views/admin/products/brands.php',
+    'admin/products/tags' => 'views/admin/products/tags.php',
+    'admin/products/attributes' => 'views/admin/products/attributes.php',
+    'admin/products/reviews' => 'views/admin/products/reviews.php',
+    
+    // Orders routes
     'admin/orders' => 'views/admin/orders.php',
+    'admin/orders/pending' => 'views/admin/orders/pending.php',
+    'admin/orders/processing' => 'views/admin/orders/processing.php',
+    'admin/orders/completed' => 'views/admin/orders/completed.php',
+    
+    // Customers
     'admin/customers' => 'views/admin/customers.php',
+    
+    // Coupons
+    'admin/coupons' => 'views/admin/coupons.php',
+    
+    // Inventory routes
+    'admin/inventory' => 'views/admin/inventory.php',
+    'admin/inventory/logs' => 'views/admin/inventory/logs.php',
+    'admin/inventory/low-stock' => 'views/admin/inventory/low-stock.php',
+    
+    // Analytics/Reports routes
     'admin/reports' => 'views/admin/reports.php',
+    'admin/analytics/products' => 'views/admin/analytics/products.php',
+    'admin/analytics/revenue' => 'views/admin/analytics/revenue.php',
+    'admin/analytics/orders' => 'views/admin/analytics/orders.php',
+    'admin/analytics/customers' => 'views/admin/analytics/customers.php',
+    'admin/analytics/stock' => 'views/admin/analytics/stock.php',
+    
+    // Settings
     'admin/settings' => 'views/admin/settings.php',
     
     // Cashier routes
