@@ -11,11 +11,11 @@ URL: /?url=login
 
 **Akun Cashier:**
 - Username: `cashier`
-- Password: `password`
+- Password: `cashier123`
 
 **Akun Admin:**
 - Username: `admin`  
-- Password: `password`
+- Password: `admin123`
 
 ### 2. Akses POS
 Setelah login sebagai cashier:

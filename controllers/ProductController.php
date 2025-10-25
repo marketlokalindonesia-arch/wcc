@@ -1,5 +1,4 @@
 <?php
-// controllers/ProductController.php
 
 class ProductController {
     private $product;
@@ -11,7 +10,6 @@ class ProductController {
     }
 
     public function createProduct($data, $files) {
-        // Set product data
         $this->product->name = $data['name'];
         $this->product->slug = $this->generateSlug($data['name']);
         $this->product->description = $data['description'];
@@ -24,9 +22,7 @@ class ProductController {
             $this->product->categories = $data['categories'];
         }
 
-        // Create product
         if($this->product->create()) {
-            // Handle image uploads
             if(!empty($files['images'])) {
                 $this->handleImageUploads($files['images'], $this->product->id);
             }
@@ -86,11 +82,22 @@ class ProductController {
         $stmt = $this->product->read($filters);
         $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        // Get images for each product
         foreach($products as &$product) {
             $this->product->id = $product['id'];
             $product['images'] = $this->product->getImages();
             $product['categories'] = $this->product->getCategories();
+            
+            if (!empty($product['categories'])) {
+                $product['category_name'] = $product['categories'][0]['name'];
+            } else {
+                $product['category_name'] = '';
+            }
+            
+            if (!empty($product['images'])) {
+                $product['image'] = $product['images'][0]['image_url'];
+            } else {
+                $product['image'] = '/attached_assets/uploads/products/placeholder.jpg';
+            }
         }
 
         return $products;

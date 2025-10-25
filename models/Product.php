@@ -113,7 +113,7 @@ public function getCategoryName($productId) {
         }
 
         if(isset($filters['search'])) {
-            $query .= " AND (p.name LIKE :search OR p.description LIKE :search)";
+            $query .= " AND (p.name LIKE :search OR p.description LIKE :search OR p.sku LIKE :search OR p.barcode LIKE :search)";
             $params[':search'] = "%" . $filters['search'] . "%";
         }
 

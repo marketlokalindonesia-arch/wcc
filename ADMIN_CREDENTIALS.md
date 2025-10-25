@@ -3,14 +3,14 @@
 ## Default Admin Account
 
 - **Username**: `admin`
-- **Password**: `password`
+- **Password**: `admin123`
 - **Email**: `admin@example.com`
 - **Role**: `admin`
 
 ## Default Cashier Account
 
 - **Username**: `cashier`
-- **Password**: `password`
+- **Password**: `cashier123`
 - **Email**: `cashier@example.com`
 - **Role**: `cashier`
 

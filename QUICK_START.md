@@ -6,14 +6,14 @@
 ```
 URL: /?url=login
 Username: cashier
-Password: password
+Password: cashier123
 ```
 
 ### Admin Account
 ```
 URL: /?url=login  
 Username: admin
-Password: password
+Password: admin123
 ```
 
 ## Test POS dalam 30 Detik
