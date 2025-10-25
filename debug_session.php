@@ -14,7 +14,6 @@
     
     <h2>1. PHP Session Info</h2>
     <pre><?php
-    session_start();
     require_once 'config/session.php';
     
     echo "Session ID: " . session_id() . "\n";
