@@ -1,0 +1,99 @@
+<!-- views/product-form.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Product - WC Clone</title>
+    <style>
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; }
+        input, textarea, select { width: 100%; padding: 8px; }
+        .image-preview { max-width: 200px; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <h1>Add New Product</h1>
+    
+    <form action="api/products.php" method="POST" enctype="multipart/form-data" id="productForm">
+        <div class="form-group">
+            <label for="name">Product Name</label>
+            <input type="text" id="name" name="name" required>
+        </div>
+
+        <div class="form-group">
+            <label for="description">Description</label>
+            <textarea id="description" name="description" rows="5"></textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="price">Price</label>
+            <input type="number" id="price" name="price" step="0.01" required>
+        </div>
+
+        <div class="form-group">
+            <label for="stock_quantity">Stock Quantity</label>
+            <input type="number" id="stock_quantity" name="stock_quantity" required>
+        </div>
+
+        <div class="form-group">
+            <label for="images">Product Images</label>
+            <input type="file" id="images" name="images[]" multiple accept="image/*">
+            <div id="imagePreview"></div>
+        </div>
+
+        <div class="form-group">
+            <label for="categories">Categories</label>
+            <select id="categories" name="categories[]" multiple>
+                <!-- Categories will be loaded via AJAX -->
+            </select>
+        </div>
+
+        <button type="submit">Add Product</button>
+    </form>
+
+    <script>
+        // Image preview functionality
+        document.getElementById('images').addEventListener('change', function(e) {
+            const preview = document.getElementById('imagePreview');
+            preview.innerHTML = '';
+            
+            for(let file of e.target.files) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.className = 'image-preview';
+                    preview.appendChild(img);
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Form submission
+        document.getElementById('productForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            
+            try {
+                const response = await fetch('api/products.php', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                if(result.success) {
+                    alert('Product added successfully!');
+                    window.location.href = 'products.php';
+                } else {
+                    alert('Error: ' + result.message);
+                }
+            } catch(error) {
+                alert('Error: ' + error.message);
+            }
+        });
+    </script>
+</body>
+</html>
