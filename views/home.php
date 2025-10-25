@@ -1,92 +1,199 @@
-<?php
-// views/home.php
-
-// Setup
-$database = new Database();
-$db = $database->getConnection();
-
-$product = new Product($db);
-$category = new Category($db);
-
-// Get data
-$products = $product->read(['limit' => 8])->fetchAll(PDO::FETCH_ASSOC);
-$categories = $category->read(['limit' => 6])->fetchAll(PDO::FETCH_ASSOC);
-
-$page_title = "Home - WC Clone";
-$current_page = 'home';
-?>
-
-<?php include 'partials/header.php'; ?>
-
-<!-- Hero Section -->
-<section class="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-20">
-    <div class="container mx-auto px-4">
-        <div class="text-center">
-            <h1 class="text-4xl md:text-6xl font-bold mb-6">Welcome to WC Clone</h1>
-            <p class="text-xl mb-8">Your modern e-commerce solution</p>
-            <a href="<?php echo getBaseUrl(); ?>products" 
-               class="bg-white text-blue-600 px-8 py-4 rounded-lg font-bold hover:bg-gray-100 inline-block">
-                Start Shopping
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WC Clone - E-Commerce POS System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .hero-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 100px 0;
+        }
+        .category-card {
+            transition: transform 0.3s;
+        }
+        .category-card:hover {
+            transform: translateY(-5px);
+        }
+        .navbar-brand {
+            font-weight: bold;
+            font-size: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-shopping-cart"></i> WC Clone
             </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/?url=products">Products</a>
+                    </li>
+                    <?php if (isLoggedIn()): ?>
+                        <?php if (isAdmin()): ?>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/?url=admin/dashboard">
+                                    <i class="fas fa-tachometer-alt"></i> Admin Dashboard
+                                </a>
+                            </li>
+                        <?php elseif (isCashier()): ?>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/?url=cashier/dashboard">
+                                    <i class="fas fa-cash-register"></i> Kasir Dashboard
+                                </a>
+                            </li>
+                        <?php endif; ?>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/?url=logout">
+                                <i class="fas fa-sign-out-alt"></i> Logout
+                            </a>
+                        </li>
+                    <?php else: ?>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/?url=login">
+                                <i class="fas fa-sign-in-alt"></i> Login
+                            </a>
+                        </li>
+                    <?php endif; ?>
+                </ul>
+            </div>
         </div>
-    </div>
-</section>
+    </nav>
 
-<!-- Categories -->
-<section class="py-16 bg-white">
-    <div class="container mx-auto px-4">
-        <h2 class="text-3xl font-bold text-center mb-12">Shop by Category</h2>
-        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-            <?php foreach($categories as $cat): ?>
-                <a href="<?php echo getBaseUrl(); ?>products?category=<?php echo $cat['id']; ?>" 
-                   class="bg-gray-100 rounded-lg p-4 text-center hover:bg-blue-100 transition-colors">
-                    <div class="text-2xl text-blue-600 mb-2">
-                        <i class="fas fa-<?php echo getCategoryIcon($cat['name']); ?>"></i>
-                    </div>
-                    <h3 class="font-semibold"><?php echo htmlspecialchars($cat['name']); ?></h3>
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container text-center">
+            <h1 class="display-3 fw-bold mb-4">Welcome to WC Clone</h1>
+            <p class="lead mb-4">Sistem E-Commerce & POS Modern untuk Bisnis Anda</p>
+            <div class="d-flex gap-3 justify-content-center">
+                <a href="/?url=login" class="btn btn-light btn-lg">
+                    <i class="fas fa-sign-in-alt"></i> Login
                 </a>
-            <?php endforeach; ?>
+                <a href="/?url=products" class="btn btn-outline-light btn-lg">
+                    <i class="fas fa-shopping-bag"></i> Browse Products
+                </a>
+            </div>
         </div>
-    </div>
-</section>
+    </section>
 
-<!-- Products -->
-<section class="py-16 bg-gray-50">
-    <div class="container mx-auto px-4">
-        <h2 class="text-3xl font-bold text-center mb-12">Featured Products</h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <?php foreach($products as $product_item): ?>
-                <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
-                    <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" 
-                         alt="<?php echo htmlspecialchars($product_item['name']); ?>" 
-                         class="w-full h-48 object-cover">
-                    <div class="p-4">
-                        <h3 class="font-semibold text-lg mb-2"><?php echo htmlspecialchars($product_item['name']); ?></h3>
-                        <p class="text-blue-600 font-bold text-xl mb-4">$<?php echo number_format($product_item['price'], 2); ?></p>
-                        <button class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 add-to-cart-btn"
-                                data-product-id="<?php echo $product_item['id']; ?>">
-                            Add to Cart
-                        </button>
+    <!-- Features -->
+    <section class="py-5">
+        <div class="container">
+            <h2 class="text-center mb-5">Fitur Unggulan</h2>
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="card h-100 category-card border-0 shadow">
+                        <div class="card-body text-center p-4">
+                            <div class="mb-3">
+                                <i class="fas fa-tachometer-alt fa-3x text-primary"></i>
+                            </div>
+                            <h5 class="card-title">Dashboard Admin Lengkap</h5>
+                            <p class="card-text">
+                                Statistik real-time, grafik penjualan, manajemen produk & order
+                            </p>
+                        </div>
                     </div>
                 </div>
-            <?php endforeach; ?>
+                <div class="col-md-4">
+                    <div class="card h-100 category-card border-0 shadow">
+                        <div class="card-body text-center p-4">
+                            <div class="mb-3">
+                                <i class="fas fa-cash-register fa-3x text-success"></i>
+                            </div>
+                            <h5 class="card-title">Sistem POS Modern</h5>
+                            <p class="card-text">
+                                Point of Sale dengan barcode scanner, quick payment, dan shift management
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card h-100 category-card border-0 shadow">
+                        <div class="card-body text-center p-4">
+                            <div class="mb-3">
+                                <i class="fas fa-chart-line fa-3x text-info"></i>
+                            </div>
+                            <h5 class="card-title">Laporan & Analytics</h5>
+                            <p class="card-text">
+                                Laporan penjualan harian/bulanan, inventory tracking, dan export data
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card h-100 category-card border-0 shadow">
+                        <div class="card-body text-center p-4">
+                            <div class="mb-3">
+                                <i class="fas fa-boxes fa-3x text-warning"></i>
+                            </div>
+                            <h5 class="card-title">Inventory Management</h5>
+                            <p class="card-text">
+                                Manajemen stok otomatis, low stock alerts, dan inventory logs
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card h-100 category-card border-0 shadow">
+                        <div class="card-body text-center p-4">
+                            <div class="mb-3">
+                                <i class="fas fa-users fa-3x text-danger"></i>
+                            </div>
+                            <h5 class="card-title">Multi-Role Access</h5>
+                            <p class="card-text">
+                                Role-based access control: Admin, Kasir, dan Customer
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card h-100 category-card border-0 shadow">
+                        <div class="card-body text-center p-4">
+                            <div class="mb-3">
+                                <i class="fas fa-mobile-alt fa-3x text-purple"></i>
+                            </div>
+                            <h5 class="card-title">Responsive Design</h5>
+                            <p class="card-text">
+                                UI responsif untuk desktop, tablet, dan mobile devices
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-    </div>
-</section>
+    </section>
 
-<?php include 'partials/footer.php'; ?>
+    <!-- CTA Section -->
+    <section class="py-5 bg-light">
+        <div class="container text-center">
+            <h3 class="mb-4">Siap untuk Memulai?</h3>
+            <p class="lead mb-4">Login sekarang untuk mengakses dashboard</p>
+            <a href="/?url=login" class="btn btn-primary btn-lg">
+                <i class="fas fa-sign-in-alt"></i> Login Sekarang
+            </a>
+        </div>
+    </section>
 
-<?php
-// Helper function for category icons
-function getCategoryIcon($categoryName) {
-    $icons = [
-        'Electronics' => 'laptop',
-        'Fashion' => 'tshirt',
-        'Home' => 'home',
-        'Sports' => 'basketball-ball',
-        'Beauty' => 'spa',
-        'Toys' => 'gamepad'
-    ];
-    return $icons[$categoryName] ?? 'shopping-bag';
-}
-?>
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-4">
+        <div class="container text-center">
+            <p class="mb-0">&copy; 2025 WC Clone. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

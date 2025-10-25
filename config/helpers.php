@@ -48,11 +48,4 @@ if (!isset($_SESSION['cart'])) {
     $_SESSION['cart'] = [];
 }
 
-// Initialize user session jika belum ada (untuk demo)
-if (!isset($_SESSION['user_id'])) {
-    $_SESSION['user_id'] = 1; // Default user untuk demo
-    $_SESSION['user_name'] = 'Demo User';
-    $_SESSION['user_email'] = 'demo@wcclone.com';
-    $_SESSION['user_role'] = 'customer';
-}
 ?>
