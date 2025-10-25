@@ -63,7 +63,7 @@ $current_page = 'orders';
                                             <div class="order-meta">
                                                 <span class="order-date">
                                                     <i class="fas fa-calendar"></i>
-                                                    <?php echo date('F j, Y', strtotime($order['created_at'])); ?>
+                                                    <?php echo safeFormatDate($order['created_at'], 'F j, Y'); ?>
                                                 </span>
                                                 <span class="order-status status-<?php echo $order['status']; ?>">
                                                     <?php echo ucfirst($order['status']); ?>

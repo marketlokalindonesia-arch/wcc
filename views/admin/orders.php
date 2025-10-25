@@ -210,7 +210,7 @@ $user = getUser();
                                                     <?php echo ucfirst(htmlspecialchars($order['status'])); ?>
                                                 </span>
                                             </td>
-                                            <td><?php echo date('M d, Y', strtotime($order['created_at'])); ?></td>
+                                            <td><?php echo safeFormatDate($order['created_at'], 'M d, Y'); ?></td>
                                             <td>
                                                 <div class="btn-group btn-group-sm">
                                                     <button class="btn btn-outline-primary" title="View">

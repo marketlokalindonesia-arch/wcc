@@ -206,7 +206,7 @@ $user = getUser();
                                                     <?php echo ucfirst($order['status']); ?>
                                                 </span>
                                             </td>
-                                            <td><?php echo date('M j, Y', strtotime($order['created_at'])); ?></td>
+                                            <td><?php echo safeFormatDate($order['created_at'], 'M j, Y'); ?></td>
                                         </tr>
                                     <?php endforeach; ?>
                                 <?php endif; ?>

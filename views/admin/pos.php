@@ -201,7 +201,7 @@ $user = getUser();
                                                         <?php echo ucfirst(htmlspecialchars($transaction['status'])); ?>
                                                     </span>
                                                 </td>
-                                                <td><?php echo date('h:i A', strtotime($transaction['created_at'])); ?></td>
+                                                <td><?php echo safeFormatDate($transaction['created_at'], 'h:i A'); ?></td>
                                             </tr>
                                         <?php endforeach; ?>
                                     <?php else: ?>

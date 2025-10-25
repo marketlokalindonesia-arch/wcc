@@ -147,7 +147,7 @@ $user = getUser();
                                                     <span class="badge bg-secondary">Customer</span>
                                                 <?php endif; ?>
                                             </td>
-                                            <td><?php echo date('M d, Y', strtotime($u['created_at'])); ?></td>
+                                            <td><?php echo safeFormatDate($u['created_at'], 'M d, Y'); ?></td>
                                             <td>
                                                 <div class="btn-group btn-group-sm">
                                                     <button class="btn btn-outline-primary" onclick="editUser(<?php echo $u['id']; ?>)">

@@ -300,26 +300,10 @@ $user = getUser();
 
     <div class="pos-container">
         <div class="products-section">
-            <div class="category-tabs">
-                <div class="category-tab active" data-category="">
+            <div class="category-tabs" id="categoryTabs">
+                <div class="category-tab active" data-category="" data-category-id="">
                     <i class="fas fa-th"></i>
                     <span>All Categories</span>
-                </div>
-                <div class="category-tab" data-category="Lainnya">
-                    <i class="fas fa-box"></i>
-                    <span>Lainnya</span>
-                </div>
-                <div class="category-tab" data-category="Makanan">
-                    <i class="fas fa-utensils"></i>
-                    <span>Makanan</span>
-                </div>
-                <div class="category-tab" data-category="Minuman">
-                    <i class="fas fa-mug-hot"></i>
-                    <span>Minuman</span>
-                </div>
-                <div class="category-tab" data-category="Rokok">
-                    <i class="fas fa-smoking"></i>
-                    <span>Rokok</span>
                 </div>
             </div>
             
@@ -387,10 +371,76 @@ $user = getUser();
         let selectedPayment = null;
         let searchTimeout = null;
         let allProducts = [];
-        let currentCategory = '';
+        let allCategories = [];
+        let currentCategoryId = '';
 
         function formatRupiah(amount) {
             return 'Rp ' + Math.round(amount).toLocaleString('id-ID');
+        }
+
+        function getCategoryIcon(categoryName) {
+            const icons = {
+                'Electronics': 'laptop',
+                'Fashion': 'tshirt',
+                'Home & Garden': 'home',
+                'Home': 'home',
+                'Sports': 'basketball-ball',
+                'Beauty': 'spa',
+                'Toys': 'gamepad',
+                'Books': 'book',
+                'Food': 'utensils',
+                'Makanan': 'utensils',
+                'Minuman': 'mug-hot',
+                'Drinks': 'mug-hot',
+                'Beverages': 'coffee'
+            };
+            return icons[categoryName] || 'box';
+        }
+
+        function loadCategories() {
+            fetch('/api/categories.php')
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        allCategories = data.data || [];
+                        displayCategoryTabs();
+                    }
+                })
+                .catch(err => {
+                    console.error('Categories load error:', err);
+                });
+        }
+
+        function displayCategoryTabs() {
+            const container = document.getElementById('categoryTabs');
+            const allTab = container.querySelector('[data-category-id=""]');
+            
+            allCategories.forEach(category => {
+                const tab = document.createElement('div');
+                tab.className = 'category-tab';
+                tab.dataset.categoryId = category.id;
+                tab.dataset.category = category.name;
+                tab.innerHTML = `
+                    <i class="fas fa-${getCategoryIcon(category.name)}"></i>
+                    <span>${category.name}</span>
+                `;
+                tab.addEventListener('click', function() {
+                    document.querySelectorAll('.category-tab').forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    currentCategoryId = this.dataset.categoryId;
+                    document.getElementById('searchInput').value = '';
+                    filterProductsByCategory(currentCategoryId);
+                });
+                container.appendChild(tab);
+            });
+
+            allTab.addEventListener('click', function() {
+                document.querySelectorAll('.category-tab').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                currentCategoryId = '';
+                document.getElementById('searchInput').value = '';
+                displayProducts(allProducts);
+            });
         }
 
         function loadAllProducts() {
@@ -416,61 +466,28 @@ $user = getUser();
             
             searchTimeout = setTimeout(() => {
                 if (query.length === 0) {
-                    filterProductsByCategory(currentCategory);
+                    filterProductsByCategory(currentCategoryId);
                 } else {
                     const filtered = allProducts.filter(product => 
                         product.name.toLowerCase().includes(query) || 
-                        (product.sku && product.sku.toLowerCase().includes(query))
+                        (product.sku && product.sku.toLowerCase().includes(query)) ||
+                        (product.barcode && product.barcode.toLowerCase().includes(query))
                     );
                     displayProducts(filtered);
                 }
             }, 300);
         });
 
-        document.querySelectorAll('.category-tab').forEach(tab => {
-            tab.addEventListener('click', function() {
-                document.querySelectorAll('.category-tab').forEach(t => t.classList.remove('active'));
-                this.classList.add('active');
-                currentCategory = this.dataset.category;
-                document.getElementById('searchInput').value = '';
-                filterProductsByCategory(currentCategory);
-            });
-        });
-
-        function filterProductsByCategory(category) {
-            if (!category) {
+        function filterProductsByCategory(categoryId) {
+            if (!categoryId) {
                 displayProducts(allProducts);
-            } else if (category === 'Makanan') {
-                const filtered = allProducts.filter(product => {
-                    const catName = (product.category_name || '').toLowerCase();
-                    return catName === 'makanan' || catName.includes('food') || catName.includes('snack') || catName.includes('meal');
-                });
-                displayProducts(filtered);
-            } else if (category === 'Minuman') {
-                const filtered = allProducts.filter(product => {
-                    const catName = (product.category_name || '').toLowerCase();
-                    return catName === 'minuman' || catName.includes('drink') || catName.includes('beverage') || catName.includes('coffee') || catName.includes('tea') || catName.includes('juice');
-                });
-                displayProducts(filtered);
-            } else if (category === 'Rokok') {
-                const filtered = allProducts.filter(product => {
-                    const catName = (product.category_name || '').toLowerCase();
-                    return catName === 'rokok' || catName.includes('cigarette') || catName.includes('tobacco') || catName.includes('smoking');
-                });
-                displayProducts(filtered);
-            } else if (category === 'Lainnya') {
-                const filtered = allProducts.filter(product => {
-                    const catName = (product.category_name || '').toLowerCase();
-                    const isMakanan = catName === 'makanan' || catName.includes('food') || catName.includes('snack') || catName.includes('meal');
-                    const isMinuman = catName === 'minuman' || catName.includes('drink') || catName.includes('beverage') || catName.includes('coffee') || catName.includes('tea') || catName.includes('juice');
-                    const isRokok = catName === 'rokok' || catName.includes('cigarette') || catName.includes('tobacco') || catName.includes('smoking');
-                    return !isMakanan && !isMinuman && !isRokok;
-                });
-                displayProducts(filtered);
             } else {
-                const filtered = allProducts.filter(product => 
-                    product.category_name === category
-                );
+                const filtered = allProducts.filter(product => {
+                    if (!product.categories || product.categories.length === 0) {
+                        return false;
+                    }
+                    return product.categories.some(cat => cat.id == categoryId);
+                });
                 displayProducts(filtered);
             }
         }
@@ -486,30 +503,48 @@ $user = getUser();
             grid.innerHTML = products.map(product => {
                 const stock = parseInt(product.stock_quantity) || 0;
                 const stockBadgeClass = stock < 10 ? 'low-stock' : '';
+                const displayPrice = product.sale_price && parseFloat(product.sale_price) > 0 
+                    ? parseFloat(product.sale_price) 
+                    : parseFloat(product.price) || 0;
+                
+                if (stock <= 0) {
+                    return '';
+                }
                 
                 return `
-                    <div class="product-card" onclick="addToCart(${product.id}, '${(product.name || '').replace(/'/g, "\\'")}', ${product.price}, ${stock})">
+                    <div class="product-card" onclick="addToCart(${product.id}, '${(product.name || '').replace(/'/g, "\\'")}', ${displayPrice}, ${stock})">
                         <div class="stock-badge ${stockBadgeClass}">${stock}</div>
                         <img src="${product.image || '/uploads/products/placeholder.jpg'}" alt="${product.name || 'Product'}" onerror="this.src='/uploads/products/placeholder.jpg'">
                         <div class="name">${product.name || 'Unnamed Product'}</div>
-                        <div class="price">${formatRupiah(parseFloat(product.price) || 0)}</div>
+                        <div class="price">${formatRupiah(displayPrice)}</div>
                     </div>
                 `;
             }).join('');
         }
 
         function addToCart(id, name, price, stock) {
+            if (!id || !name || !price) {
+                console.error('Invalid product data:', { id, name, price });
+                alert('Cannot add product - invalid product data');
+                return;
+            }
+
+            if (stock <= 0) {
+                alert('Out of stock!');
+                return;
+            }
+
             const existingItem = cart.find(item => item.id === id);
             
             if (existingItem) {
                 if (existingItem.quantity < stock) {
                     existingItem.quantity++;
                 } else {
-                    alert('Insufficient stock!');
+                    alert('Insufficient stock! Only ' + stock + ' available.');
                     return;
                 }
             } else {
-                cart.push({ id, name, price: parseFloat(price), quantity: 1, stock });
+                cart.push({ id, name, price: parseFloat(price) || 0, quantity: 1, stock });
             }
             
             updateCart();
@@ -640,7 +675,8 @@ $user = getUser();
                     const query = barcodeBuffer.toLowerCase();
                     const filtered = allProducts.filter(product => 
                         product.name.toLowerCase().includes(query) || 
-                        (product.sku && product.sku.toLowerCase().includes(query))
+                        (product.sku && product.sku.toLowerCase().includes(query)) ||
+                        (product.barcode && product.barcode.toLowerCase().includes(query))
                     );
                     displayProducts(filtered);
                 }
@@ -648,6 +684,7 @@ $user = getUser();
             }, 100);
         });
 
+        loadCategories();
         loadAllProducts();
     </script>
 </body>

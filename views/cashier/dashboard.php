@@ -255,7 +255,7 @@ $recentOrders = $dashboardController->getRecentOrders(5);
                                             <?php echo ucfirst($order['status']); ?>
                                         </span>
                                     </td>
-                                    <td><?php echo date('g:i A', strtotime($order['created_at'])); ?></td>
+                                    <td><?php echo safeFormatDate($order['created_at'], 'g:i A'); ?></td>
                                 </tr>
                             <?php endforeach; ?>
                         <?php endif; ?>

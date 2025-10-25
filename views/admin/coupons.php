@@ -156,7 +156,7 @@ $user = getUser();
                                                     </span>
                                                 </td>
                                                 <td>
-                                                    <?php echo date('M d, Y', strtotime($coupon['expiry_date'])); ?>
+                                                    <?php echo safeFormatDate($coupon['expiry_date'], 'M d, Y'); ?>
                                                     <?php if ($isExpired): ?>
                                                         <br><small class="text-danger">Expired</small>
                                                     <?php endif; ?>

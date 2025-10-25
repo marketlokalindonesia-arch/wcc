@@ -165,7 +165,7 @@ $user = getUser();
                                                 </span>
                                             </td>
                                             <td><strong>$<?php echo number_format($customer['total_spent'], 2); ?></strong></td>
-                                            <td><?php echo date('M d, Y', strtotime($customer['created_at'])); ?></td>
+                                            <td><?php echo safeFormatDate($customer['created_at'], 'M d, Y'); ?></td>
                                             <td>
                                                 <div class="btn-group btn-group-sm">
                                                     <button class="btn btn-outline-primary" title="View">

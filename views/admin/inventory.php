@@ -303,7 +303,7 @@ $user = getUser();
                                                 </td>
                                                 <td><?php echo htmlspecialchars($log['username'] ?? 'System'); ?></td>
                                                 <td><?php echo htmlspecialchars($log['notes'] ?? ''); ?></td>
-                                                <td><?php echo date('M d, Y H:i', strtotime($log['created_at'])); ?></td>
+                                                <td><?php echo safeFormatDate($log['created_at'], 'M d, Y H:i'); ?></td>
                                             </tr>
                                         <?php endforeach; ?>
                                     <?php else: ?>

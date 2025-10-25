@@ -22,7 +22,7 @@ requireRole('admin');
     <div class="main-content">
         <h2 class="mb-4"><i class="fas fa-plus me-2"></i>Add New Product</h2>
 
-        <form method="POST" action="/api/products/create" enctype="multipart/form-data">
+        <form method="POST" action="/api/products.php" enctype="multipart/form-data">
             <div class="row">
                 <div class="col-md-8">
                     <div class="card border-0 shadow-sm mb-4">

@@ -17,7 +17,7 @@ class Category {
     }
 
     public function read($filters = []) {
-        $query = "SELECT c.*, COUNT(p.id) as product_count 
+        $query = "SELECT c.id, c.name, c.slug, c.description, c.parent_id, c.created_at, COUNT(p.id) as product_count 
                  FROM " . $this->table_name . " c
                  LEFT JOIN product_category_relationships pcr ON c.id = pcr.category_id
                  LEFT JOIN products p ON pcr.product_id = p.id AND p.status = 'publish'
@@ -32,7 +32,7 @@ class Category {
             $query .= " AND c.parent_id IS NULL";
         }
 
-        $query .= " GROUP BY c.id ORDER BY c.name ASC";
+        $query .= " GROUP BY c.id, c.name, c.slug, c.description, c.parent_id, c.created_at ORDER BY c.name ASC";
 
         if(isset($filters['limit'])) {
             $query .= " LIMIT :limit";
@@ -53,7 +53,7 @@ class Category {
     }
 
     public function getHierarchy() {
-        $query = "SELECT c.*, COUNT(p.id) as product_count,
+        $query = "SELECT c.id, c.name, c.slug, c.description, c.parent_id, c.created_at, COUNT(p.id) as product_count,
                          (SELECT COUNT(*) FROM product_categories sc WHERE sc.parent_id = c.id) as child_count
                  FROM " . $this->table_name . " c
                  LEFT JOIN product_category_relationships pcr ON c.id = pcr.category_id

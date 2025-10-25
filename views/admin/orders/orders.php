@@ -117,7 +117,7 @@ $user = getUser();
                                         <span class="badge bg-secondary"><?php echo ucfirst($order['status']); ?></span>
                                     <?php endif; ?>
                                 </td>
-                                <td><?php echo date('M d, Y H:i', strtotime($order['created_at'])); ?></td>
+                                <td><?php echo safeFormatDate($order['created_at'], 'M d, Y H:i'); ?></td>
                                 <td>
                                     <div class="btn-group btn-group-sm">
                                         <button class="btn btn-outline-primary" onclick="viewOrder(<?php echo $order['id']; ?>)">

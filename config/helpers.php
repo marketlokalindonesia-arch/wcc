@@ -1,7 +1,5 @@
 <?php
-// config/helpers.php
 
-// Start session hanya sekali
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
@@ -10,16 +8,12 @@ function getBaseUrl() {
     $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? "https" : "http";
     $host = $_SERVER['HTTP_HOST'];
     
-    // Get current directory
     $current_dir = dirname($_SERVER['SCRIPT_NAME']);
     
-    // Build base URL
     $base_url = $protocol . '://' . $host . $current_dir;
     
-    // Remove index.php if present
     $base_url = str_replace('/index.php', '', $base_url);
     
-    // Ensure it ends with slash
     if (substr($base_url, -1) !== '/') {
         $base_url .= '/';
     }
@@ -27,7 +21,6 @@ function getBaseUrl() {
     return $base_url;
 }
 
-// Autoload classes
 spl_autoload_register(function ($class_name) {
     $paths = [
         'models/' . $class_name . '.php',
@@ -43,9 +36,15 @@ spl_autoload_register(function ($class_name) {
     }
 });
 
-// Initialize cart session jika belum ada
 if (!isset($_SESSION['cart'])) {
     $_SESSION['cart'] = [];
+}
+
+function safeFormatDate($datetime, $format = 'M d, Y') {
+    if (empty($datetime) || $datetime === null) {
+        return '-';
+    }
+    return date($format, strtotime($datetime));
 }
 
 ?>

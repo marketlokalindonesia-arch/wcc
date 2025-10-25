@@ -73,7 +73,7 @@ $coupons = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                     </td>
                                     <td>Rp <?php echo number_format($coupon['minimum_amount'], 0, ',', '.'); ?></td>
                                     <td><?php echo $coupon['used_count']; ?> / <?php echo $coupon['usage_limit']; ?></td>
-                                    <td><?php echo date('d M Y', strtotime($coupon['expiry_date'])); ?></td>
+                                    <td><?php echo safeFormatDate($coupon['expiry_date'], 'd M Y'); ?></td>
                                     <td>
                                         <?php if($coupon['status'] === 'active'): ?>
                                             <span class="badge bg-success">Active</span>

@@ -61,7 +61,7 @@ $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                     <td><?php echo htmlspecialchars($order['first_name'] . ' ' . $order['last_name']); ?></td>
                                     <td>Rp <?php echo number_format($order['total_amount'], 0, ',', '.'); ?></td>
                                     <td><span class="badge bg-info"><?php echo ucfirst($order['payment_method']); ?></span></td>
-                                    <td><?php echo date('d M Y H:i', strtotime($order['created_at'])); ?></td>
+                                    <td><?php echo safeFormatDate($order['created_at'], 'd M Y H:i'); ?></td>
                                     <td>
                                         <button class="btn btn-sm btn-success"><i class="fas fa-check"></i> Complete</button>
                                         <button class="btn btn-sm btn-outline-primary"><i class="fas fa-eye"></i></button>

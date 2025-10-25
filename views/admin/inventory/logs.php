@@ -53,7 +53,7 @@ $logs = $inventoryController->getInventoryLogs(null, 100);
                             <?php else: ?>
                                 <?php foreach($logs as $log): ?>
                                 <tr>
-                                    <td><?php echo date('d M Y H:i', strtotime($log['created_at'])); ?></td>
+                                    <td><?php echo safeFormatDate($log['created_at'], 'd M Y H:i'); ?></td>
                                     <td><?php echo htmlspecialchars($log['product_name'] ?? 'N/A'); ?></td>
                                     <td>
                                         <?php

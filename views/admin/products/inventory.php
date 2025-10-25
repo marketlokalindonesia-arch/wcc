@@ -221,7 +221,7 @@ $user = getUser();
                                 <?php else: ?>
                                     <?php foreach($inventoryLogs as $log): ?>
                                     <tr>
-                                        <td><?php echo date('M d, Y H:i', strtotime($log['created_at'])); ?></td>
+                                        <td><?php echo safeFormatDate($log['created_at'], 'M d, Y H:i'); ?></td>
                                         <td><?php echo htmlspecialchars($log['product_name']); ?></td>
                                         <td><?php echo htmlspecialchars($log['sku'] ?? 'N/A'); ?></td>
                                         <td>

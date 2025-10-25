@@ -73,7 +73,7 @@ $reviews = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                             <span class="badge bg-warning">Pending</span>
                                         <?php endif; ?>
                                     </td>
-                                    <td><?php echo date('d M Y', strtotime($review['created_at'])); ?></td>
+                                    <td><?php echo safeFormatDate($review['created_at'], 'd M Y'); ?></td>
                                     <td>
                                         <button class="btn btn-sm btn-outline-success"><i class="fas fa-check"></i></button>
                                         <button class="btn btn-sm btn-outline-danger"><i class="fas fa-trash"></i></button>
