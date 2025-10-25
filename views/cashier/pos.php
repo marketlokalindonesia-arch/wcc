@@ -13,10 +13,8 @@ $user = getUser();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>POS - WC Clone</title>
     
-    <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
@@ -46,6 +44,41 @@ $user = getUser();
             display: flex;
             flex-direction: column;
         }
+        
+        .category-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+        }
+        .category-tab {
+            padding: 10px 20px;
+            border-radius: 25px;
+            border: 2px solid #e0e0e0;
+            background: white;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+            font-size: 14px;
+        }
+        .category-tab:hover {
+            border-color: #667eea;
+            background: #f0f3ff;
+        }
+        .category-tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #667eea;
+        }
+        .category-tab i {
+            font-size: 16px;
+        }
+        
         .search-box {
             position: relative;
             margin-bottom: 20px;
@@ -76,11 +109,27 @@ $user = getUser();
             transition: all 0.3s;
             border: 2px solid transparent;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            position: relative;
         }
         .product-card:hover {
             transform: translateY(-3px);
             border-color: #667eea;
             box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+        .product-card .stock-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        .product-card .stock-badge.low-stock {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
         }
         .product-card img {
             width: 100%;
@@ -102,10 +151,6 @@ $user = getUser();
             color: #667eea;
             font-weight: 700;
             font-size: 16px;
-        }
-        .product-card .stock {
-            font-size: 12px;
-            color: #6c757d;
         }
         .cart-header {
             padding: 20px;
@@ -225,10 +270,14 @@ $user = getUser();
             margin-bottom: 15px;
             opacity: 0.3;
         }
+        .loading {
+            text-align: center;
+            padding: 40px 20px;
+            color: #6c757d;
+        }
     </style>
 </head>
 <body>
-    <!-- Header -->
     <div class="pos-header">
         <div class="d-flex justify-content-between align-items-center">
             <div>
@@ -249,24 +298,44 @@ $user = getUser();
         </div>
     </div>
 
-    <!-- POS Container -->
     <div class="pos-container">
-        <!-- Products Section -->
         <div class="products-section">
+            <div class="category-tabs">
+                <div class="category-tab active" data-category="">
+                    <i class="fas fa-th"></i>
+                    <span>All Categories</span>
+                </div>
+                <div class="category-tab" data-category="Lainnya">
+                    <i class="fas fa-box"></i>
+                    <span>Lainnya</span>
+                </div>
+                <div class="category-tab" data-category="Makanan">
+                    <i class="fas fa-utensils"></i>
+                    <span>Makanan</span>
+                </div>
+                <div class="category-tab" data-category="Minuman">
+                    <i class="fas fa-mug-hot"></i>
+                    <span>Minuman</span>
+                </div>
+                <div class="category-tab" data-category="Rokok">
+                    <i class="fas fa-smoking"></i>
+                    <span>Rokok</span>
+                </div>
+            </div>
+            
             <div class="search-box">
                 <input type="text" id="searchInput" placeholder="Search products by name, SKU, or scan barcode..." autofocus>
                 <i class="fas fa-search"></i>
             </div>
             
             <div id="productsGrid" class="product-grid">
-                <div class="text-center text-muted py-5">
-                    <i class="fas fa-search fa-3x mb-3" style="opacity: 0.3;"></i>
-                    <p>Search for products to add to cart</p>
+                <div class="loading">
+                    <i class="fas fa-spinner fa-spin fa-3x mb-3"></i>
+                    <p>Loading products...</p>
                 </div>
             </div>
         </div>
 
-        <!-- Cart Section -->
         <div class="cart-section">
             <div class="cart-header">
                 <h5 class="mb-0">Current Order</h5>
@@ -282,7 +351,7 @@ $user = getUser();
             <div class="cart-footer">
                 <div class="total-row">
                     <span>Total:</span>
-                    <span id="totalAmount">$0.00</span>
+                    <span id="totalAmount">Rp 0</span>
                 </div>
 
                 <div class="payment-buttons">
@@ -311,38 +380,99 @@ $user = getUser();
         </div>
     </div>
 
-    <!-- Bootstrap 5 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
     <script>
         let cart = [];
         let selectedPayment = null;
         let searchTimeout = null;
+        let allProducts = [];
+        let currentCategory = '';
 
-        // Search products
-        document.getElementById('searchInput').addEventListener('input', function(e) {
-            clearTimeout(searchTimeout);
-            const query = e.target.value.trim();
-            
-            if (query.length < 2) {
-                document.getElementById('productsGrid').innerHTML = '<div class="text-center text-muted py-5"><i class="fas fa-search fa-3x mb-3" style="opacity: 0.3;"></i><p>Search for products to add to cart</p></div>';
-                return;
-            }
+        function formatRupiah(amount) {
+            return 'Rp ' + Math.round(amount).toLocaleString('id-ID');
+        }
 
-            searchTimeout = setTimeout(() => {
-                searchProducts(query);
-            }, 300);
-        });
-
-        function searchProducts(query) {
-            fetch('/api/pos.php?action=search&q=' + encodeURIComponent(query))
+        function loadAllProducts() {
+            fetch('/api/products.php')
                 .then(res => res.json())
                 .then(data => {
                     if (data.success) {
-                        displayProducts(data.products);
+                        allProducts = data.data || [];
+                        displayProducts(allProducts);
+                    } else {
+                        document.getElementById('productsGrid').innerHTML = '<div class="text-center text-muted py-5"><i class="fas fa-exclamation-triangle fa-3x mb-3" style="opacity: 0.3;"></i><p>Failed to load products</p></div>';
                     }
                 })
-                .catch(err => console.error('Search error:', err));
+                .catch(err => {
+                    console.error('Load error:', err);
+                    document.getElementById('productsGrid').innerHTML = '<div class="text-center text-muted py-5"><i class="fas fa-exclamation-triangle fa-3x mb-3" style="opacity: 0.3;"></i><p>Error loading products</p></div>';
+                });
+        }
+
+        document.getElementById('searchInput').addEventListener('input', function(e) {
+            clearTimeout(searchTimeout);
+            const query = e.target.value.trim().toLowerCase();
+            
+            searchTimeout = setTimeout(() => {
+                if (query.length === 0) {
+                    filterProductsByCategory(currentCategory);
+                } else {
+                    const filtered = allProducts.filter(product => 
+                        product.name.toLowerCase().includes(query) || 
+                        (product.sku && product.sku.toLowerCase().includes(query))
+                    );
+                    displayProducts(filtered);
+                }
+            }, 300);
+        });
+
+        document.querySelectorAll('.category-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.category-tab').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                currentCategory = this.dataset.category;
+                document.getElementById('searchInput').value = '';
+                filterProductsByCategory(currentCategory);
+            });
+        });
+
+        function filterProductsByCategory(category) {
+            if (!category) {
+                displayProducts(allProducts);
+            } else if (category === 'Makanan') {
+                const filtered = allProducts.filter(product => {
+                    const catName = (product.category_name || '').toLowerCase();
+                    return catName === 'makanan' || catName.includes('food') || catName.includes('snack') || catName.includes('meal');
+                });
+                displayProducts(filtered);
+            } else if (category === 'Minuman') {
+                const filtered = allProducts.filter(product => {
+                    const catName = (product.category_name || '').toLowerCase();
+                    return catName === 'minuman' || catName.includes('drink') || catName.includes('beverage') || catName.includes('coffee') || catName.includes('tea') || catName.includes('juice');
+                });
+                displayProducts(filtered);
+            } else if (category === 'Rokok') {
+                const filtered = allProducts.filter(product => {
+                    const catName = (product.category_name || '').toLowerCase();
+                    return catName === 'rokok' || catName.includes('cigarette') || catName.includes('tobacco') || catName.includes('smoking');
+                });
+                displayProducts(filtered);
+            } else if (category === 'Lainnya') {
+                const filtered = allProducts.filter(product => {
+                    const catName = (product.category_name || '').toLowerCase();
+                    const isMakanan = catName === 'makanan' || catName.includes('food') || catName.includes('snack') || catName.includes('meal');
+                    const isMinuman = catName === 'minuman' || catName.includes('drink') || catName.includes('beverage') || catName.includes('coffee') || catName.includes('tea') || catName.includes('juice');
+                    const isRokok = catName === 'rokok' || catName.includes('cigarette') || catName.includes('tobacco') || catName.includes('smoking');
+                    return !isMakanan && !isMinuman && !isRokok;
+                });
+                displayProducts(filtered);
+            } else {
+                const filtered = allProducts.filter(product => 
+                    product.category_name === category
+                );
+                displayProducts(filtered);
+            }
         }
 
         function displayProducts(products) {
@@ -353,14 +483,19 @@ $user = getUser();
                 return;
             }
 
-            grid.innerHTML = products.map(product => `
-                <div class="product-card" onclick="addToCart(${product.id}, '${product.name.replace(/'/g, "\\'")}', ${product.price}, ${product.stock_quantity})">
-                    <img src="${product.image || '/uploads/products/placeholder.jpg'}" alt="${product.name}" onerror="this.src='/uploads/products/placeholder.jpg'">
-                    <div class="name">${product.name}</div>
-                    <div class="price">$${parseFloat(product.price).toFixed(2)}</div>
-                    <div class="stock">Stock: ${product.stock_quantity}</div>
-                </div>
-            `).join('');
+            grid.innerHTML = products.map(product => {
+                const stock = parseInt(product.stock_quantity) || 0;
+                const stockBadgeClass = stock < 10 ? 'low-stock' : '';
+                
+                return `
+                    <div class="product-card" onclick="addToCart(${product.id}, '${(product.name || '').replace(/'/g, "\\'")}', ${product.price}, ${stock})">
+                        <div class="stock-badge ${stockBadgeClass}">${stock}</div>
+                        <img src="${product.image || '/uploads/products/placeholder.jpg'}" alt="${product.name || 'Product'}" onerror="this.src='/uploads/products/placeholder.jpg'">
+                        <div class="name">${product.name || 'Unnamed Product'}</div>
+                        <div class="price">${formatRupiah(parseFloat(product.price) || 0)}</div>
+                    </div>
+                `;
+            }).join('');
         }
 
         function addToCart(id, name, price, stock) {
@@ -403,7 +538,7 @@ $user = getUser();
             
             if (cart.length === 0) {
                 container.innerHTML = '<div class="empty-cart"><i class="fas fa-shopping-cart"></i><p>Cart is empty</p></div>';
-                document.getElementById('totalAmount').textContent = '$0.00';
+                document.getElementById('totalAmount').textContent = 'Rp 0';
                 document.getElementById('checkoutBtn').disabled = true;
                 return;
             }
@@ -414,7 +549,7 @@ $user = getUser();
                 <div class="cart-item">
                     <div class="item-info">
                         <div class="item-name">${item.name}</div>
-                        <div class="item-price">$${item.price.toFixed(2)} × ${item.quantity}</div>
+                        <div class="item-price">${formatRupiah(item.price)} × ${item.quantity}</div>
                     </div>
                     <div class="qty-controls">
                         <button class="qty-btn" onclick="updateQuantity(${item.id}, -1)">
@@ -428,11 +563,10 @@ $user = getUser();
                 </div>
             `).join('');
 
-            document.getElementById('totalAmount').textContent = '$' + total.toFixed(2);
+            document.getElementById('totalAmount').textContent = formatRupiah(total);
             document.getElementById('checkoutBtn').disabled = !selectedPayment;
         }
 
-        // Payment method selection
         document.querySelectorAll('.payment-btn').forEach(btn => {
             btn.addEventListener('click', function() {
                 document.querySelectorAll('.payment-btn').forEach(b => b.classList.remove('selected'));
@@ -442,7 +576,6 @@ $user = getUser();
             });
         });
 
-        // Checkout
         document.getElementById('checkoutBtn').addEventListener('click', function() {
             if (cart.length === 0 || !selectedPayment) return;
 
@@ -477,7 +610,7 @@ $user = getUser();
                     document.querySelectorAll('.payment-btn').forEach(b => b.classList.remove('selected'));
                     updateCart();
                     document.getElementById('searchInput').value = '';
-                    document.getElementById('productsGrid').innerHTML = '<div class="text-center text-muted py-5"><i class="fas fa-search fa-3x mb-3" style="opacity: 0.3;"></i><p>Search for products to add to cart</p></div>';
+                    loadAllProducts();
                 } else {
                     alert('Error: ' + (data.message || 'Failed to create order'));
                 }
@@ -492,7 +625,6 @@ $user = getUser();
             });
         });
 
-        // Barcode scanner support
         let barcodeBuffer = '';
         let barcodeTimeout = null;
 
@@ -505,11 +637,18 @@ $user = getUser();
             barcodeTimeout = setTimeout(() => {
                 if (barcodeBuffer.length > 3) {
                     document.getElementById('searchInput').value = barcodeBuffer;
-                    searchProducts(barcodeBuffer);
+                    const query = barcodeBuffer.toLowerCase();
+                    const filtered = allProducts.filter(product => 
+                        product.name.toLowerCase().includes(query) || 
+                        (product.sku && product.sku.toLowerCase().includes(query))
+                    );
+                    displayProducts(filtered);
                 }
                 barcodeBuffer = '';
             }, 100);
         });
+
+        loadAllProducts();
     </script>
 </body>
 </html>
